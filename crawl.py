@@ -1,5 +1,15 @@
 from urllib.parse import urljoin, urlsplit
-from bs4 import BeautifulSoup, Tag
+from bs4 import BeautifulSoup, Tag #type: ignore
+from typing import TypedDict
+import requests
+
+
+class PageData(TypedDict):
+    url: str
+    heading: str
+    first_paragraph: str
+    outgoing_links: list[str]
+    image_urls: list[str]
 
 def normalize_url(input_url: str) -> str:
     urlobject = urlsplit(input_url)
@@ -46,3 +56,30 @@ def get_images_from_html(html, base_url):
         absluteURL = urljoin(base_url, src)
         listofURLs.append(absluteURL)
     return listofURLs
+
+def extract_page_data(html: str, page_url: str):
+    u = normalize_url(page_url)
+    h = get_heading_from_html(html)
+    f = get_first_paragraph_from_html(html)
+    l = get_urls_from_html(html, page_url)
+    i = get_images_from_html(html, page_url)
+    return PageData(url=u, heading=h, first_paragraph=f, outgoing_links=l, image_urls=i)
+
+def get_html(url):
+    # Wrap in try/except to catch network-level errors (DNS failures, timeouts, etc.)
+    try:
+        r = requests.get(url, headers={"User-Agent": "BootCrawler/1.0"})
+    except Exception as e:
+        raise Exception(f"Network error: {e}")
+
+    # Check for HTTP errors (400+)
+    if r.status_code >= 400:
+        raise Exception(f"HTTP Error: {r.status_code}")
+
+    # Check content-type headers securely
+    content_type = r.headers.get("content-type", "")
+    if "text/html" not in content_type:
+        raise Exception(f"Expected text/html, got {content_type}")
+
+    # Return the string representation of the HTML
+    return r.text
