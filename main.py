@@ -1,5 +1,5 @@
 import sys
-from crawl import get_html
+from crawl import get_html, crawl_page
 
 if len(sys.argv) < 2:
     print("no website provided")
@@ -11,8 +11,7 @@ elif len(sys.argv) > 2:
 BASE_URL = sys.argv[1]
 
 print(f"starting crawl of: {BASE_URL}")
-html = get_html(BASE_URL)
-print(html)
+crawl_page(BASE_URL)
 
 # print("Script name:", sys.argv[0]) # example.py
 # print("Argument:", sys.argv[1])    # -v

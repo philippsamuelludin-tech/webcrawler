@@ -83,3 +83,18 @@ def get_html(url):
 
     # Return the string representation of the HTML
     return r.text
+
+def crawl_page(base_url, current_url=None, page_data=None):
+    current_urlobject = urlsplit(current_url)
+    base_url_object = urlsplit(base_url)
+    if current_urlobject.netloc != base_url_object.netloc:
+        return
+    normURL = normalize_url(current_url)
+    if normURL in page_data:
+        return
+    html = get_html(normURL)
+    print(html)
+    pagedata = extract_page_data(html, normURL)
+    URLs = get_urls_from_html(html, normURL)
+    for url in URLs:
+        crawl_page(base_url, url, page_data)
