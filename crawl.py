@@ -99,8 +99,6 @@ class AsyncCrawler:
             if self.max_pages <= len(self.page_data):
                 self.should_stop = True
                 print("Reached maximum number of pages to crawl.")
-                for task in self.all_tasks:
-                    task.cancel()
                 return False
 
             if normalized_url in self.page_data:
@@ -154,6 +152,7 @@ class AsyncCrawler:
                     for url in urls:
                         task = asyncio.create_task(self.crawl_page(url))
                         self.all_tasks.add(task)
+                        tasks.append(task)
                     
                     await asyncio.gather(*tasks)
                 except Exception as e:

@@ -1,6 +1,7 @@
 import sys
 import asyncio
 from crawl import crawl_site_async
+from json_report import write_json_report
 
 async def main_async():
     if len(sys.argv) < 2:
@@ -16,18 +17,7 @@ async def main_async():
 
     print(f"starting crawl of: {BASE_URL}")
     page_data = await crawl_site_async(BASE_URL, MAX_CONCURRENCY, MAX_PAGES)
-
-    # Print statistics about collected data
-    print(f"\n--- Crawl Complete ---")
-    print(f"Total pages found: {len(page_data)}")
-    print(f"\nPage Data:")
-    for data in page_data.values():
-        if data is not None:
-            print(f"\nURL: {data['url']}")
-            print(f"  Heading: {data['heading']}")
-            print(f"  First Paragraph: {data['first_paragraph']}")
-            print(f"  Outgoing Links: {len(data['outgoing_links'])}")
-            print(f"  Images: {len(data['image_urls'])}")
+    write_json_report(page_data)
 
 if __name__ == "__main__":
     asyncio.run(main_async())
